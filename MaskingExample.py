@@ -17,7 +17,7 @@ import json
 
 
 
-folders = glob.glob("/media/mzins/DATA1/Topcoder/circle_finder/train/*")
+folders = glob.glob("/media/DATA1/Topcoder/circle_finder/train/*")
 
 inputs = []
 for f in folders:
@@ -41,7 +41,7 @@ for idx in range(40):#len(inputs)):
     f_annotation = inputs[idx][1]
     f_pan = inputs[idx][0]
 
-
+    darknet_lines = []
 
     with fiona.open(f_annotation, "r") as annotation_collection:
         annotations = [feature["geometry"] for feature in annotation_collection]
@@ -60,8 +60,12 @@ for idx in range(40):#len(inputs)):
         # img = np.clip(img, 0, 255)
         
         pil_img = Image.fromarray(img.astype(np.uint8))
-        filename = "/home/mzins/dev/circle_finder/out/img_%06d.png" % idx
-        pil_img.save(filename)
+        #filename = "/home/mzins/dev/Circle_Finder/out/img_%06d.png" % idx
+        filename = "/home/mzins/dev/darknet/build/darknet/x64/data/obj/img_%06d.png" % idx
+        x_scale = 416/ img.shape[1]
+        y_scale = 416/ img.shape[0]
+        
+        pil_img.resize((416, 416)).save(filename)
         #plt.imshow(img/255)
         #plt.show()
 
@@ -76,8 +80,12 @@ for idx in range(40):#len(inputs)):
         t_inv = np.linalg.inv(transform)
         annotations = []
         for pts in polys:
+            
+            pts= pts[:, :2]
             pts = (t_inv @ np.vstack((pts.T, np.ones((1, pts.shape[0]))))).T
             uvs = np.round(pts[:, :2])
+            uvs[:, 0] *= x_scale
+            uvs[:, 1] *= y_scale
             xmin, ymin = np.min(uvs, axis=0)
             xmax, ymax = np.max(uvs, axis=0)
             
@@ -90,13 +98,21 @@ for idx in range(40):#len(inputs)):
             annot["segmentation"] = [uvs.flatten().tolist()]
             annotations += [annot]
 
+
+            darknet_lines.append("0 %f %f %f %f\n" % (xmin / 416, ymin / 416, (xmax-xmin) / 416, (ymax-ymin) / 416))
+
+
     data = {"file_name": filename,
             "height": img.shape[0],
             "width": img.shape[1],
             "id": idx,
             "annotations":annotations}
+    
 
     labelled_data.append(data)
+
+    with open(os.path.splitext(filename)[0] + ".txt", "w") as fout:
+        fout.writelines(darknet_lines)
 
 
 with open("labels.json", "w") as fout:
