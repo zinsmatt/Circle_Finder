@@ -60,12 +60,15 @@ for idx in range(40):#len(inputs)):
         # img = np.clip(img, 0, 255)
         
         pil_img = Image.fromarray(img.astype(np.uint8))
-        #filename = "/home/mzins/dev/Circle_Finder/out/img_%06d.png" % idx
-        filename = "/home/mzins/dev/darknet/build/darknet/x64/data/obj/img_%06d.png" % idx
-        x_scale = 416/ img.shape[1]
-        y_scale = 416/ img.shape[0]
+        filename = "/home/mzins/dev/Circle_Finder/circle/train/img_%06d.png" % idx
+        # filename = "/home/mzins/dev/darknet/build/darknet/x64/data/obj/img_%06d.png" % idx
+        # x_scale = 416/ img.shape[1]
+        # y_scale = 416/ img.shape[0]
+        x_scale = 1
+        y_scale = 1
         
-        pil_img.resize((416, 416)).save(filename)
+        # pil_img.resize((416, 416)).save(filename)
+        pil_img.save(filename)
         #plt.imshow(img/255)
         #plt.show()
 
