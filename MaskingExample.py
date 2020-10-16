@@ -17,7 +17,7 @@ import json
 
 
 
-folders = glob.glob("/media/DATA1/Topcoder/circle_finder/train/*")
+folders = glob.glob("/media/mzins/DATA1/Topcoder/circle_finder/train/*")
 
 inputs = []
 for f in folders:
@@ -36,7 +36,8 @@ def clean_poly(pts):
 
 labelled_data = []
 idx = 45
-for idx in range(40):#len(inputs)):
+for idx in range(2, len(inputs), 3): #
+# for idx in sorted(list(range(0, len(inputs), 3)) + list(range(1, len(inputs), 3))):
     print(idx)
     f_annotation = inputs[idx][1]
     f_pan = inputs[idx][0]
@@ -46,7 +47,7 @@ for idx in range(40):#len(inputs)):
     with fiona.open(f_annotation, "r") as annotation_collection:
         annotations = [feature["geometry"] for feature in annotation_collection]
                         
-
+    
     with rasterio.open(f_pan) as src:
         out_image, out_transform = rasterio.mask.mask(src, annotations, all_touched=False, invert=False, crop=False)
         out_meta = src.meta
@@ -60,15 +61,25 @@ for idx in range(40):#len(inputs)):
         # img = np.clip(img, 0, 255)
         
         pil_img = Image.fromarray(img.astype(np.uint8))
-        filename = "/home/mzins/dev/Circle_Finder/circle/train/img_%06d.png" % idx
+        #filename = "/home/mzins/dev/Circle_Finder/circle/train/img_%06d.png" % idx
+        #filename = "/media/mzins/DATA1/Topcoder/circle_finder/yolov4/train/img_%06d.png" % idx
+        # filename = "/media/mzins/DATA1/Topcoder/circle_finder/yolov4/valid/img_%06d.png" % idx
+        # filename = "/media/mzins/DATA1/Topcoder/circle_finder/detectron2/train/img_%06d.png" % idx
+        filename = "/media/mzins/DATA1/Topcoder/circle_finder/detectron2/valid/img_%06d.png" % idx
         # filename = "/home/mzins/dev/darknet/build/darknet/x64/data/obj/img_%06d.png" % idx
-        # x_scale = 416/ img.shape[1]
-        # y_scale = 416/ img.shape[0]
+
         x_scale = 1
         y_scale = 1
+        if img.shape[1] > 800:
+            x_scale = 800 / img.shape[1]
+            y_scale = x_scale
+            new_width = int(round(x_scale * img.shape[1]))
+            new_height = int(round(y_scale * img.shape[0]))
+            pil_img = pil_img.resize((new_width, new_height))
         
         # pil_img.resize((416, 416)).save(filename)
         pil_img.save(filename)
+        w, h = pil_img.size
         #plt.imshow(img/255)
         #plt.show()
 
@@ -106,8 +117,8 @@ for idx in range(40):#len(inputs)):
 
 
     data = {"file_name": filename,
-            "height": img.shape[0],
-            "width": img.shape[1],
+            "height": h,
+            "width": w,
             "id": idx,
             "annotations":annotations}
     
@@ -118,7 +129,8 @@ for idx in range(40):#len(inputs)):
         fout.writelines(darknet_lines)
 
 
-with open("labels.json", "w") as fout:
+# with open("labels_train.json", "w") as fout:
+with open("labels_valid.json", "w") as fout:
     json.dump(labelled_data, fout)
 # out_meta.update({"driver": "GTiff",
 #                  "height": out_image.shape[1],
