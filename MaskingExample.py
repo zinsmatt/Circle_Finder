@@ -15,7 +15,6 @@ import json
 
 
 
-
 def create_if_not(folder):
     if not os.path.isdir(folder):
         os.mkdir(folder)
@@ -29,7 +28,7 @@ def clean_poly(pts):
             out.append(pts[i, :])
     return np.vstack(out)
 
-mode = "test"
+mode = "valid"
 
 print("Mode: ", mode)
 
@@ -65,14 +64,15 @@ create_if_not(out_folder)
 
 for idx in list_indices:
     print(idx)
+    name = os.path.basename(inputs[idx][0]).split('_')[0]
 
-    filename = os.path.join(out_folder, "img_%06d.png" % idx)
+    filename = os.path.join(out_folder, name + ".png")
     f_annotation = inputs[idx][1]
     f_pan = inputs[idx][0]
 
     with rasterio.open(f_pan) as src:
         img = src.read(1).astype(float)
-
+        transform= src.transform
 
     img = np.dstack([img]*3)
     pil_img = Image.fromarray(img.astype(np.uint8))
@@ -86,7 +86,7 @@ for idx in list_indices:
         new_height = int(round(y_scale * img.shape[0]))
         pil_img = pil_img.resize((new_width, new_height))
 
-    # pil_img.save(filename)
+    pil_img.save(filename)
     w, h = pil_img.size
 
     annotations = []
@@ -104,7 +104,7 @@ for idx in list_indices:
 
         polys = [np.vstack(a["coordinates"]) for a in annotations]
 
-        transform = np.asarray(src.transform).reshape((3, 3))
+        transform = np.asarray(transform).reshape((3, 3))
         t_inv = np.linalg.inv(transform)
         annotations = []
         for pts in polys:
@@ -131,7 +131,9 @@ for idx in list_indices:
             "height": h,
             "width": w,
             "id": idx,
-            "annotations":annotations}
+            "annotations":annotations,
+            "transform":transform.tolist(),
+            "scaling": 1 / x_scale}
 
     labelled_data.append(data)
 
