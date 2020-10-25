@@ -38,28 +38,27 @@ split_file = "split_file.csv"
 
 
 with open(predictions_file, "r") as fin:
-    pred = json.load(fin)
+    data = json.load(fin)
 
 split_data = []
-for index, file in enumerate(pred.keys()):
+for index, pred in enumerate(data):
     # print(file)
     
-    name = os.path.splitext(os.path.basename(file))[0]
+    file = pred["file_name"]
+    name = os.path.splitext(os.path.basename(file))[0].split("_")[0]
     
-    T = np.asarray(pred[file]["transform"])
-    scale = pred[file]["scaling"]
-    polygons = pred[file]["polygons"]
-    scores = pred[file]["scores"]
+    T = np.asarray(pred["transform"])
+    boxes = pred["boxes"]
+    scores = pred["scores"]
     transformed_polygons = []
-    for poly, score in zip(polygons, scores):
-        print(score)
+    for bbox, score in zip(boxes, scores):
         if score > 0.94:
             # pts = np.asarray(poly) * s
             # minx, miny = np.min(pts, axis=0)
             # maxx, maxy = np.max(pts, axis=0)
             # corners = np.array([[minx, miny],
             #                     [maxx, maxy]])
-            corners = np.asarray(poly).reshape((-1, 2)) * scale
+            corners = np.asarray(bbox).reshape((-1, 2))
             corners = (T[:2, :2] @ corners.T + T[:2, 2].reshape((-1, 1))).T
             pts = bbox_to_circle(corners.flatten().tolist())
     
