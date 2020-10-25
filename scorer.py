@@ -58,7 +58,12 @@ if __name__ == '__main__':
     score = 0
     for filename in target:
         pred = load_polygons(SUBMISSION_DIR + '/solution/' + filename)
-        truth = load_polygons(TRUTH_DIR + '/' + filename)
+        if filename.count("_") > 1:
+            f = filename.split("_")
+            truth = load_polygons(TRUTH_DIR + '/' + "_".join([f[0], f[2]]))
+        else:
+            truth = load_polygons(TRUTH_DIR + '/' + filename)
+
         if len(truth) == 0:
             f1 = float(len(pred) == 0)
         elif len(pred) == 0:

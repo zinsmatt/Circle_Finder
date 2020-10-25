@@ -42,7 +42,8 @@ else:
 
 inputs = []
 for f in folders:
-    img_file = os.path.join(f, os.path.basename(f) + "_PAN.tif")
+    # img_file = os.path.join(f, os.path.basename(f) + "_PAN.tif")
+    img_file = os.path.join(f, os.path.basename(f) + "_PANSHARPEN.tif")
     if mode == "train" or mode == "valid":
         annot_file = os.path.join(f, os.path.basename(f) + "_anno.geojson")
     else:
@@ -59,7 +60,9 @@ elif mode == "valid":
 else:
     list_indices = range(len(inputs))
 
-out_folder = os.path.join(dataset_folder, "circle/%s/" % mode)
+# out_folder_name = "circle"
+out_folder_name = "pansharpen"
+out_folder = os.path.join(dataset_folder, out_folder_name, "%s" % mode)
 create_if_not(out_folder)
 
 for idx in list_indices:
@@ -71,22 +74,22 @@ for idx in list_indices:
     f_pan = inputs[idx][0]
 
     with rasterio.open(f_pan) as src:
-        img = src.read(1).astype(float)
-        transform= src.transform
+        img = np.dstack((src.read(1).astype(float), src.read(2).astype(float), src.read(3).astype(float)))
+        transform = src.transform
 
-    img = np.dstack([img]*3)
+    # img = np.dstack([img]*3)
     pil_img = Image.fromarray(img.astype(np.uint8))
 
     x_scale = 1
     y_scale = 1
-    if img.shape[1] > 800:
-        x_scale = 800 / img.shape[1]
-        y_scale = x_scale
-        new_width = int(round(x_scale * img.shape[1]))
-        new_height = int(round(y_scale * img.shape[0]))
-        pil_img = pil_img.resize((new_width, new_height))
+    # if img.shape[1] > 800:
+    #     x_scale = 800 / img.shape[1]
+    #     y_scale = x_scale
+    #     new_width = int(round(x_scale * img.shape[1]))
+    #     new_height = int(round(y_scale * img.shape[0]))
+    #     pil_img = pil_img.resize((new_width, new_height))
 
-    pil_img.save(filename)
+    # pil_img.save(filename)
     w, h = pil_img.size
 
     annotations = []
@@ -127,7 +130,7 @@ for idx in list_indices:
             annotations += [annot]
 
 
-    data = {"file_name": filename,
+    data = {"file_name": inputs[idx][0], #filename,
             "height": h,
             "width": w,
             "id": idx,
@@ -140,5 +143,5 @@ for idx in list_indices:
 
 
 
-with open(os.path.join(dataset_folder, "circle", "labels_%s.json" % mode), "w") as fout:
+with open(os.path.join(dataset_folder, out_folder_name, "labels_%s.json" % mode), "w") as fout:
     json.dump(labelled_data, fout)

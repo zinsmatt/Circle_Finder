@@ -49,20 +49,23 @@ for index, file in enumerate(pred.keys()):
     T = np.asarray(pred[file]["transform"])
     scale = pred[file]["scaling"]
     polygons = pred[file]["polygons"]
+    scores = pred[file]["scores"]
     transformed_polygons = []
-    for poly in polygons:
-        # pts = np.asarray(poly) * s
-        # minx, miny = np.min(pts, axis=0)
-        # maxx, maxy = np.max(pts, axis=0)
-        # corners = np.array([[minx, miny],
-        #                     [maxx, maxy]])
-        corners = np.asarray(poly).reshape((-1, 2)) * scale
-        corners = (T[:2, :2] @ corners.T + T[:2, 2].reshape((-1, 1))).T
-        pts = bbox_to_circle(corners.flatten().tolist())
-        
-        # c = compute_compactness(pts)
-        # print(index, c)
-        transformed_polygons.append(pts)
+    for poly, score in zip(polygons, scores):
+        print(score)
+        if score > 0.94:
+            # pts = np.asarray(poly) * s
+            # minx, miny = np.min(pts, axis=0)
+            # maxx, maxy = np.max(pts, axis=0)
+            # corners = np.array([[minx, miny],
+            #                     [maxx, maxy]])
+            corners = np.asarray(poly).reshape((-1, 2)) * scale
+            corners = (T[:2, :2] @ corners.T + T[:2, 2].reshape((-1, 1))).T
+            pts = bbox_to_circle(corners.flatten().tolist())
+    
+            # c = compute_compactness(pts)
+            # print(index, c)
+            transformed_polygons.append(pts)
 
     
     out_name = name + "_anno.geojson"
@@ -71,6 +74,7 @@ for index, file in enumerate(pred.keys()):
                 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::32619" } }}
     
     features = []
+    print(len(transformed_polygons))
     for p in transformed_polygons:
         geometry = {}
         geometry["coordinates"] = [p.tolist()]
