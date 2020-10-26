@@ -67,17 +67,48 @@ cfg.INPUT.MAX_SIZE_TRAIN = 800
 cfg.INPUT.MIN_SIZE_TRAIN = 600
 cfg.INPUT.MAX_SIZE_TEST = 800
 cfg.INPUT.MIN_SIZE_TEST = 600
+#cfg.INPUT.CROP.ENABLED = True
 cfg.OUTPUT_DIR = output_folder
 
 # mean =  [ 92.7146011   93.66882446 102.28063327]
 # std =  [31.49143693 33.6597322  35.81154082]
 # cfg.MODEL.PIXEL_MEAN = [102.28063327, 93.66882446, 92.7146011]
-cfg.MODEL.PIXEL_MEAN = [111.01797572, 102.54100801, 93.86145873]
+cfg.MODEL.PIXEL_MEAN = [111.01797572, 102.54100801, 93.86145873, 100, 100, 100, 100, 100]
 # cfg.MODEL.PIXEL_MEAN = [116.05156287, 116.05156287, 116.05156287]
 #cfg.MODEL.PIXEL_STD = [31.49143693, 33.6597322, 35.81154082]
+cfg.MODEL.PIXEL_STD = [31.49143693, 33.6597322, 35.81154082, 30, 30, 30, 30, 30]
+
+
+import detectron2.data.transforms as T
+from detectron2.data import DatasetMapper, build_detection_train_loader   # the default mapper
+
+
+class MyCustomResize(T.Augmentation):
+    def get_transform(self, image):
+        old_h, old_w = image.shape[:2]
+        f = 800 / old_w
+        new_h, new_w = int(f * old_h), int(f * old_w)
+        return T.ResizeTransform(old_h, old_w, new_h, new_w)
+
+
+class Trainer(DefaultTrainer):
+    def __init__(self, cfg):
+        super(Trainer, self).__init__(cfg)
+
+    def build_train_loader(cls, cfg):
+        dataloader = build_detection_train_loader(cfg,
+        mapper=DatasetMapper(cfg, is_train=True, augmentations=[
+            MyCustomResize()
+            # T.RandomCrop("relative_range", [0.9, 0.9]),
+            # T.RandomFlip(0.5, horizontal=True,  vertical=False),
+            # T.RandomFlip(0.5, horizontal=False, vertical=True)
+        ]))
+        return dataloader
+
 
 
 os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
-trainer = DefaultTrainer(cfg) 
+# trainer = DefaultTrainer(cfg) 
+trainer = Trainer(cfg) 
 trainer.resume_or_load(resume=False)
 trainer.train()

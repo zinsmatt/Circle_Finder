@@ -31,7 +31,7 @@ for f in folders:
     out_file = os.path.join(out_folder, image_id + "_PANSHARPEN.tif")
     annotation = os.path.join(f, image_id + "_anno.geojson")
 
-    cmd = ["gdal_pansharpen.py", pan_file, mul_file, out_file, "-b", "5", "-b", "3", "-b", "2"]
+    cmd = ["gdal_pansharpen.py", pan_file, mul_file, out_file]#, "-b", "5", "-b", "3", "-b", "2"]
     subprocess.run(cmd)
     print(image_id)
     data = {"image": out_file, "annotation": annotation}
