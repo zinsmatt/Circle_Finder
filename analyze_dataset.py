@@ -9,9 +9,11 @@ Created on Tue Oct 20 22:40:52 2020
 import cv2
 import numpy as np
 import json
+from PIL import Image
 
 dataset_file = "/media/DATA1/Topcoder/circle_finder/pansharpen/labels_train.json"
 dataset_file = "/media/DATA1/Topcoder/circle_finder/circle/labels_train.json"
+dataset_file = "/media/DATA1/Topcoder/circle_finder/prod/train_images/dataset.json"
 
 with open(dataset_file, "r") as fin:
     data = json.load(fin)
@@ -19,7 +21,10 @@ with open(dataset_file, "r") as fin:
 means = []
 stds = []
 for i, f in enumerate(data):
-    img = cv2.imread(f["file_name"]).reshape((-1, 3))
+    # img = cv2.imread(f["file_name"]).reshape((-1, 3))
+    img = np.asarray(Image.open(f["image"])).reshape((-1, 3))
+
+    # img = cv2.imread(f["file_name"]).reshape((-1, 3))
     means.append(np.mean(img, axis=0))
     stds.append(np.std(img, axis=0))
     print(i, "/", len(data))
