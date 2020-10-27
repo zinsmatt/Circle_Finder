@@ -53,6 +53,9 @@ for idx in list_indices:
     print(idx)
     image_file = dataset[idx]["image"]
     annotation_file = dataset[idx]["annotation"]
+    scale = 1.0
+    if "scale" in dataset[idx].keys():
+        scale = dataset[idx]["scale"]
 
 
     with rasterio.open(image_file) as src:
@@ -73,6 +76,7 @@ for idx in list_indices:
             pts = pts[:, :2]
             pts = (t_inv @ np.vstack((pts.T, np.ones((1, pts.shape[0]))))).T
             uvs = pts[:, :2]
+            uvs *= scale
             xmin, ymin = np.min(uvs, axis=0)
             xmax, ymax = np.max(uvs, axis=0)
             #uvs = clean_poly(uvs)
@@ -89,7 +93,8 @@ for idx in list_indices:
             "width": w,
             "id": idx,
             "annotations":annotations,
-            "transform":transform.tolist()}
+            "transform":transform.tolist(),
+            "scale":scale}
 
     detectron_labels.append(data)
 

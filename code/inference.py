@@ -5,6 +5,7 @@ from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data.detection_utils import read_image
 import os
 import sys
 import json
@@ -63,27 +64,30 @@ cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final_cpu.pth")
-cfg.MODEL.WEIGHTS = "checkpoint/model_final.pth"
-SCORE_THRESHOLD = 0.5
+# cfg.MODEL.WEIGHTS = "checkpoints/model_final_reference.pth"
+cfg.MODEL.WEIGHTS = "checkpoints/model_final.pth"
+SCORE_THRESHOLD = 0.8
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = SCORE_THRESHOLD
 # cfg.MODEL.PIXEL_MEAN = [102.28063327, 93.66882446, 92.7146011]
-####cfg.MODEL.PIXEL_MEAN = [111.01797572, 102.54100801, 93.86145873]
+cfg.MODEL.PIXEL_MEAN = [111.01797572, 102.54100801, 93.86145873]
+
 #cfg.MODEL.PIXEL_MEAN = [116.05156287, 116.05156287, 116.05156287]
 #cfg.MODEL.PIXEL_STD = [31.49143693, 33.6597322, 35.81154082]
 # cfg.MODEL.PIXEL_MEAN = [111.01797572, 102.54100801, 93.86145873]
 # cfg.MODEL.PIXEL_STD = [31.49143693, 33.6597322, 35.81154082]
-cfg.MODEL.PIXEL_MEAN = [100] * 8
-cfg.MODEL.PIXEL_STD = [30] * 8
+
+cfg.MODEL.PIXEL_MEAN = [92.96026726, 94.07466555, 102.3823547, 110.66299919, 110.32333314, 122.28574999, 138.12868997, 138.4608601]
+cfg.MODEL.PIXEL_STD = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
 
 cfg.MODEL.ROI_BOX_HEAD.CLS_AGNOSTIC_BBOX_REG = True
-cfg.INPUT.MAX_SIZE_TRAIN = 800
-cfg.INPUT.MIN_SIZE_TRAIN = 600
-cfg.INPUT.MAX_SIZE_TEST = 800
-cfg.INPUT.MIN_SIZE_TEST = 600
+#cfg.INPUT.MAX_SIZE_TRAIN = 800
+#cfg.INPUT.MIN_SIZE_TRAIN = 600
+#cfg.INPUT.MAX_SIZE_TEST = 800
+#cfg.INPUT.MIN_SIZE_TEST = 600
 
 predictor = DefaultPredictor(cfg)
 
@@ -92,25 +96,16 @@ data_out = []
 for img in data:
     print(img["file_name"])
     # im = cv2.imread(img["file_name"])
+    # im = im[:, :, ::-1]
+    im = read_image(img["file_name"])
 
-    with rasterio.open(img["file_name"]) as src:
-        im = np.dstack([src.read(1+i) for i in range(8)])
-
-    h, w = im.shape[0], im.shape[1]
-    f = 800 / w
-    new_w = int(f * w)
-    new_h = int(f * h)
-    im = np.dstack([cv2.resize(im[:, :, i], (new_h, new_w), interpolation=cv2.INTER_AREA) for i in range(im.shape[2])])
-
-
-
+  
     outputs = predictor(im)
     instances = outputs["instances"]
     classes = instances.get("pred_classes").cpu().numpy().astype(int)
     scores = instances.get("scores").cpu().numpy()
     boxes = instances.get("pred_boxes").tensor.cpu().numpy()
 
-    print(scores)
     # masks = instances.get("pred_masks").cpu().numpy()
     # if masks.shape[0] > 0:
     #     mask = masks[0, :, :].astype(np.uint8)
@@ -130,12 +125,13 @@ for img in data:
     data["boxes"] = bboxes
     data["scores"] = confidences
     data["file_name"] = img["file_name"]
+    data["scale"] = img["scale"]
     data_out.append(data)
 
     if len(viz):
-        v = Visualizer(im[:, :, :3], scale=0.8)
+        v = Visualizer(im[:, :, ::-1], scale=0.8)
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-        cv2.imwrite(os.path.join(viz, os.path.basename(img["file_name"])), out.get_image()[:, :, :3])
+        cv2.imwrite(os.path.join(viz, os.path.basename(img["file_name"])), out.get_image()[:, :, ::-1])
 
 with open(output, "w") as fout:
     json.dump(data_out, fout)

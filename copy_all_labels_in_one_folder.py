@@ -9,8 +9,8 @@ import os
 import shutil
 import glob
 
-in_folder = "/media/DATA1/Topcoder/circle_finder/train"
-out_folder = "/media/DATA1/Topcoder/circle_finder/gt_annotations"
+in_folder = "/media/mzins/DATA1/Topcoder/circle_finder/train"
+out_folder = "/media/mzins/DATA1/Topcoder/circle_finder/gt_annotations"
 
 
 folders = glob.glob(os.path.join(in_folder, "*"))

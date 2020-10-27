@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
 
     SUBMISSION_DIR = "."
-    TRUTH_DIR = "/media/DATA1/Topcoder/circle_finder/gt_annotations"
+    TRUTH_DIR = "/media/mzins/DATA1/Topcoder/circle_finder/gt_annotations"
     PHASE = "provisional"
     SPLIT_FILE = "split_file.csv"
 

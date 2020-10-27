@@ -1,6 +1,7 @@
 import geojson, sys
 from shapely.geometry.polygon import Polygon
 from math import *
+import numpy as np
 
 CIRCULAR_THRES = 0.85
 IOU_THRES = 0.5
@@ -54,7 +55,7 @@ if __name__ == '__main__':
             target.add(filename)
     print(len(target))
 
-
+    F1s = []
     score = 0
     for filename in target:
         # pred = load_polygons(SUBMISSION_DIR + '/solution/' + filename)
@@ -93,7 +94,11 @@ if __name__ == '__main__':
                 f1 = 0
             else:
                 f1 = precision * recall * 2 / (precision + recall)
-                print(f1)
+        print(f1)
         score += f1
+        F1s += [f1]
     score /= len(target)
     print('Final Score =', score)
+
+    print(np.mean(F1s))
+    print(np.median(F1s))

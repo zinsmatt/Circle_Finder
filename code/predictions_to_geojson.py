@@ -60,6 +60,7 @@ for index, pred in enumerate(data):
     T = np.asarray(pred["transform"])
     boxes = pred["boxes"]
     scores = pred["scores"]
+    scale = pred["scale"]
     transformed_polygons = []
     for bbox, score in zip(boxes, scores):
         if score > 0.94:
@@ -69,6 +70,7 @@ for index, pred in enumerate(data):
             # corners = np.array([[minx, miny],
             #                     [maxx, maxy]])
             corners = np.asarray(bbox).reshape((-1, 2))
+            corners /= scale
             corners = (T[:2, :2] @ corners.T + T[:2, 2].reshape((-1, 1))).T
             pts = bbox_to_circle(corners.flatten().tolist())
     

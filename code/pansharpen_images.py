@@ -41,4 +41,4 @@ with open(os.path.join(out_folder, "dataset.json"), "w") as fout:
     json.dump(dataset, fout)
     
     
-print("Pansharpening of %d image done in %.3fs" % (len(folders), time.time()-ta))
+print("Pansharpening of %d images done in %.3fs" % (len(folders), time.time()-ta))
