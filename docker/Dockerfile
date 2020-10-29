@@ -48,7 +48,6 @@ RUN mkdir build && \
 RUN pip3 install torch torchvision opencv-python
 RUN python3 -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.6/index.html 
 
-RUN apt install mlocate
 
 COPY . .
 

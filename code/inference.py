@@ -63,6 +63,8 @@ cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
 cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+#cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
+
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final_cpu.pth")
 cfg.MODEL.WEIGHTS = "checkpoint/model_final.pth"
@@ -77,6 +79,7 @@ cfg.INPUT.MAX_SIZE_TRAIN = 800
 cfg.INPUT.MIN_SIZE_TRAIN = 600
 cfg.INPUT.MAX_SIZE_TEST = 800
 cfg.INPUT.MIN_SIZE_TEST = 600
+
 
 predictor = DefaultPredictor(cfg)
 

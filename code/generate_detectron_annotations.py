@@ -61,7 +61,7 @@ for idx in list_indices:
         transform = np.asarray(src.transform).reshape((3, 3))
 
     annotations = []
-    if mode == "train" or mode == "valid":
+    if mode == "train" or mode == "valid" or mode == "train_all":
         with fiona.open(annotation_file, "r") as annotation_collection:
             annotations = [feature["geometry"] for feature in annotation_collection]
 
