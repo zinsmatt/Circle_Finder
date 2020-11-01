@@ -4,5 +4,5 @@
 # python generate_detectron_annotations.py valid /media/DATA1/Topcoder/circle_finder/prod/train_images/dataset.json temp/valid_annotations.json
 
 
-# python train_fasterRCNN.py temp/train_annotations.json checkpoint/
-python train_fasterRCNN.py temp/train_all_annotations.json checkpoint/
+#python train_fasterRCNN.py temp/train_annotations_segmentation.json checkpoint/
+python train_fasterRCNN.py temp/train_all_annotations_segmentation.json checkpoint/

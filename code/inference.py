@@ -5,6 +5,7 @@ from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data.detection_utils import read_image
 import os
 import sys
 import json
@@ -62,12 +63,19 @@ cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
-#cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml")
+
 
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final_cpu.pth")
+# cfg.MODEL.WEIGHTS = "checkpoint/model_final_submit_Maskrcnn_X_101.pth"
+# cfg.MODEL.WEIGHTS = "checkpoint/model_final_MaskRCNN_X_101_train_all.pth"
 cfg.MODEL.WEIGHTS = "checkpoint/model_final.pth"
+#cfg.MODEL.WEIGHTS = "checkpoint/model_final_859.pth"
 SCORE_THRESHOLD = 0.5
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = SCORE_THRESHOLD
 # cfg.MODEL.PIXEL_MEAN = [102.28063327, 93.66882446, 92.7146011]
@@ -88,6 +96,7 @@ data_out = []
 for img in data:
     print(img["file_name"])
     im = cv2.imread(img["file_name"])
+    #im = read_image(img["file_name"])
     outputs = predictor(im)
     instances = outputs["instances"]
     classes = instances.get("pred_classes").cpu().numpy().astype(int)

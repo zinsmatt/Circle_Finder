@@ -62,7 +62,7 @@ for index, pred in enumerate(data):
     scores = pred["scores"]
     transformed_polygons = []
     for bbox, score in zip(boxes, scores):
-        if score > 0.94:
+        if score > 0.9:
             # pts = np.asarray(poly) * s
             # minx, miny = np.min(pts, axis=0)
             # maxx, maxy = np.max(pts, axis=0)

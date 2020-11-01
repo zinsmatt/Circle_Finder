@@ -48,18 +48,26 @@ metadata = MetadataCatalog.get("custom_dataset")
 cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml"))
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
-cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
+cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml")
+# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
 
 cfg.DATASETS.TRAIN = ("custom_dataset",)
 cfg.DATASETS.TEST = ()
 cfg.DATALOADER.NUM_WORKERS = 4
 
 # cfg.MODEL.WEIGHTS = "/home/mzins/dev/Circle_Finder/code/pretrained/faster_rcnn_R_50_FPN_3x/137849458/model_final_280758.pkl"
-cfg.MODEL.WEIGHTS = "/home/mzins/dev/Circle_Finder/code/pretrained/faster_rcnn_R_101_FPN_3x/137851257/model_final_f6e8b1.pkl"
+# cfg.MODEL.WEIGHTS = "/home/mzins/dev/Circle_Finder/code/pretrained/faster_rcnn_R_101_FPN_3x/137851257/model_final_f6e8b1.pkl"
+cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml")  # Let training initialize from model zoo
+# cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
+# cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml")  # Let training initialize from model zoo
+# cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")  # Let training initialize from model zoo
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final_cpu.pth")
 cfg.SOLVER.IMS_PER_BATCH = 2
-cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
-cfg.SOLVER.MAX_ITER = 3000    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
+# cfg.SOLVER.BASE_LR = 0.00025  # pick a good LR
+cfg.SOLVER.BASE_LR = 0.001  # pick a good LR
+cfg.SOLVER.MAX_ITER = 8000    # 300 iterations seems good enough for this toy dataset; you may need to train longer for a practical dataset
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64   # faster, and good enough for this toy dataset (default: 512)
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1  # only has one class (ballon)
 # cfg.MODEL.DEVICE = "cpu"
@@ -69,7 +77,7 @@ cfg.INPUT.MIN_SIZE_TRAIN = 600
 cfg.INPUT.MAX_SIZE_TEST = 800
 cfg.INPUT.MIN_SIZE_TEST = 600
 cfg.OUTPUT_DIR = output_folder
-cfg.INPUT.CROP.ENABLED = True
+cfg.INPUT.CROP.ENABLED = False
 # mean =  [ 92.7146011   93.66882446 102.28063327]
 # std =  [31.49143693 33.6597322  35.81154082]
 # cfg.MODEL.PIXEL_MEAN = [102.28063327, 93.66882446, 92.7146011]

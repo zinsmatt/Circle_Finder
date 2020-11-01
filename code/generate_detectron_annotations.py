@@ -28,6 +28,15 @@ out_detectron_annotations = args.output
 
 
 
+
+def clean_poly(pts):
+    out = [pts[0]]
+    for i in range(1, len(pts)):
+        if np.sum((pts[i, :] - pts[i-1, :])**2) > 1e-3:
+            out.append(pts[i, :])
+    return np.vstack(out)
+
+
 # mode = "test"
 # out_detectron_annotations = "detectron_labels_" + mode + ".json"
 # # dataset_file = "/media/DATA1/Topcoder/circle_finder/prod/train_images/dataset.json"
@@ -75,12 +84,14 @@ for idx in list_indices:
             uvs = pts[:, :2]
             xmin, ymin = np.min(uvs, axis=0)
             xmax, ymax = np.max(uvs, axis=0)
-            #uvs = clean_poly(uvs)
+            uvs = clean_poly(uvs)
 
             annot = {}
             annot["bbox"] = [int(xmin), int(ymin), int(xmax), int(ymax)]
             annot["bbox_mode"] = 0
             annot["category_id"] = 0
+            annot["segmentation"] = [uvs.flatten().tolist()]
+
             annotations += [annot]
 
 
