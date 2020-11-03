@@ -60,7 +60,6 @@ if __name__ == '__main__':
         # pred = load_polygons(SUBMISSION_DIR + '/solution/' + filename)
         pred = load_polygons(SUBMISSION_DIR + "/" + filename)
         truth = load_polygons(TRUTH_DIR + '/' + filename)
-        
         if len(truth) == 0:
             f1 = float(len(pred) == 0)
         elif len(pred) == 0:

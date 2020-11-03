@@ -15,6 +15,7 @@ import glob
 import numpy as np
 from PIL import Image
 import argparse
+import time
 
 parser = argparse.ArgumentParser(description="Pansharpen images")
 parser.add_argument("input", help="Input dataset file")
@@ -64,9 +65,9 @@ cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
-# cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
+cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_X_101_32x8d_FPN_3x.yaml")
 # cfg.merge_from_file("configs/COCO-Detection/faster_rcnn_R_101_FPN_3x.yaml")
-cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml")
+#cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml")
 # cfg.merge_from_file("configs/COCO-InstanceSegmentation/mask_rcnn_R_101_FPN_3x.yaml")
 
 
@@ -74,7 +75,11 @@ cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 # cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final_cpu.pth")
 # cfg.MODEL.WEIGHTS = "checkpoint/model_final_submit_Maskrcnn_X_101.pth"
 # cfg.MODEL.WEIGHTS = "checkpoint/model_final_MaskRCNN_X_101_train_all.pth"
-cfg.MODEL.WEIGHTS = "checkpoint/model_final.pth"
+# cfg.MODEL.WEIGHTS = "checkpoint/model_final_no_flip_6000_train_all.pth"
+# cfg.MODEL.WEIGHTS = "checkpoint/model_final_no_flip_4000_without_cleaning.pth"
+# cfg.MODEL.WEIGHTS = "checkpoint/model_final_no_flip_4000_with_cleaning.pth"
+#cfg.MODEL.WEIGHTS = "checkpoint/model_final_no_flip_4000.pth"
+cfg.MODEL.WEIGHTS = "checkpoint/model_final_20000_clean_train_all.pth"
 #cfg.MODEL.WEIGHTS = "checkpoint/model_final_859.pth"
 SCORE_THRESHOLD = 0.5
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = SCORE_THRESHOLD
@@ -87,11 +92,12 @@ cfg.INPUT.MAX_SIZE_TRAIN = 800
 cfg.INPUT.MIN_SIZE_TRAIN = 600
 cfg.INPUT.MAX_SIZE_TEST = 800
 cfg.INPUT.MIN_SIZE_TEST = 600
+#cfg.TEST.DETECTIONS_PER_IMAGE = 1500
 
 
 predictor = DefaultPredictor(cfg)
 
-
+ta = time.time()
 data_out = []
 for img in data:
     print(img["file_name"])
@@ -132,3 +138,4 @@ for img in data:
 with open(output, "w") as fout:
     json.dump(data_out, fout)
     
+print("Inferences done in %.2fs" % (time.time() - ta))

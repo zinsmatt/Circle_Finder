@@ -20,7 +20,9 @@ def compute_compactness(polygon):
 
 def bbox_to_circle(bbox, sampling=100):
     x1, y1, x2, y2 = bbox
-    r = (x2 - x1) / 2
+    r1 = abs(x2 - x1) / 2
+    r2 = abs(y2 - y1) / 2
+    r = max(r1, r2)
     mx = (x1 + x2) / 2
     my = (y1 + y2) / 2
     t = np.linspace(0, 2*np.pi, sampling)

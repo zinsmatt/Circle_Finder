@@ -34,6 +34,8 @@ def clean_poly(pts):
     for i in range(1, len(pts)):
         if np.sum((pts[i, :] - pts[i-1, :])**2) > 1e-3:
             out.append(pts[i, :])
+    # if len(out) > 80:
+    #     out = out[::10]
     return np.vstack(out)
 
 
@@ -85,6 +87,7 @@ for idx in list_indices:
             xmin, ymin = np.min(uvs, axis=0)
             xmax, ymax = np.max(uvs, axis=0)
             uvs = clean_poly(uvs)
+            print(uvs.shape)
 
             annot = {}
             annot["bbox"] = [int(xmin), int(ymin), int(xmax), int(ymax)]
