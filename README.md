@@ -12,7 +12,7 @@ Panchromatic (PAN) and Multi-spectral (MSI) images were provided as input. My so
 
 The final accuracy is 92% on a their secret evaluation dataset.
 
-[National Geospatial-Intelligence Agency (NGA) announcement](https://www.nga.mil/news/1609952228608_NGA_announces_5_winners_in_$50K_in_Circle_Finder_c.html)
+[National Geospatial-Intelligence Agency (NGA) announcement](https://www.nga.mil/news/NGA_announces_5_winners_in_$50K_in_Circle_Finder_c.html)
 
 
 ![alt text](doc/prediction_1.png "Prediction 1")
